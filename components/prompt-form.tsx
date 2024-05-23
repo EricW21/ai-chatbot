@@ -32,6 +32,9 @@ export function PromptForm({
 }) {
   const router = useRouter()
   const { formRef, onKeyDown } = useEnterSubmit()
+
+  // added the inputRef/fileInputRef for keeping track of the file
+  // added the handleFile function which is in lib/chat/actions.tsx
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const { submitUserMessage, handleFile } = useActions()
@@ -60,11 +63,14 @@ export function PromptForm({
         const value = input.trim()
         setInput('')
         if (!value && !file) return
+
+        // if file then it just handles the file and not the message to prevent multiple Openapi runs
         if (file) {
           setFile(undefined);
           if (fileInputRef.current) {
             fileInputRef.current.value = '';
           }
+          // user sees a Uploaded File message and a recieved file message should appear soon after
           setMessages(currentMessages => [
             ...currentMessages,
             {
@@ -75,6 +81,7 @@ export function PromptForm({
           const formData = new FormData();
           formData.append('file', file);
           const responseMessage = await handleFile(formData);
+          // recieved file message should appear if file is valid
           setMessages(currentMessages => [...currentMessages, responseMessage])
         }
         else {

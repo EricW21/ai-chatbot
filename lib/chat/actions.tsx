@@ -44,6 +44,8 @@ const client = new OpenAI({
     "OpenAI-Beta": "assistants=v2"
   }
 });
+
+// intitializing the asssistant/thread outside so that there is only one thread
 let assistant: any;
 let thread: any;
 (async () => {
@@ -132,6 +134,7 @@ async function confirmPurchase(symbol: string, price: number, amount: number) {
 }
 
 
+// given a file checks that it's not null and uploads it to the api
 async function handleFile(formData: FormData) {
   'use server'
   const file = formData.get('file');
@@ -140,9 +143,13 @@ async function handleFile(formData: FormData) {
       file: file as File,
       purpose:'assistants'
      });
+
+    // comments for the v2 JSON structure, the uncommented JSON structure is for v1
     //  let existing_ids = assistant.tool_resources.code_interpreter.file_ids;
     let existing_ids = assistant.file_ids;
      console.log(JSON.stringify(assistant));
+
+     
     //  await client.beta.assistants.update(assistant.id, {
     //   tool_resources: {
     //     code_interpreter: {
@@ -150,6 +157,8 @@ async function handleFile(formData: FormData) {
     //     }
     //   },
     //  });
+
+    // allows multiple ids
     await client.beta.assistants.update(assistant.id, {
       file_ids : [...existing_ids,uploadedFile.id]
     })
@@ -167,10 +176,13 @@ async function handleFile(formData: FormData) {
   }
 }
 
+// given a text message, forwards it to the assistant api and returns the assistant response back to the user
 async function submitUserMessage(content: string, threadId:string) {
   'use server'
   
   if (typeof(threadId)==='undefined' || threadId===null) {
+
+    //debugging, had some others but removed them
     console.log(JSON.stringify(thread));
 
     threadId=thread.id;
@@ -178,21 +190,26 @@ async function submitUserMessage(content: string, threadId:string) {
     await kv.hset(`thread:${threadId}`, { type: 'thread', id: threadId });
   }
   
+
+ 
   const message = await client.beta.threads.messages.create(threadId,{
     role: "user",
     content: content
 });
-
-
   let checkMessage = await client.beta.threads.messages.list(threadId, {
     order: 'desc'
   });
+
+   // compares the number of messages with the current number of messages to make sure
+   // that the assistant responded
   let messageCount = checkMessage.data.length;
   const run = await client.beta.threads.runs.create(threadId, {
     assistant_id: assistant.id,
   }
   )
   
+
+  // timeout until the assistant responds, if time taken is too long it asks the user to retry 
   await new Promise(resolve => setTimeout(resolve, 2000));
   for (let i=0;i<6;i++) {
     await new Promise(resolve => setTimeout(resolve, 1000));
