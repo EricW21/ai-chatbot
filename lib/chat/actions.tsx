@@ -140,16 +140,19 @@ async function handleFile(formData: FormData) {
       file: file as File,
       purpose:'assistants'
      });
-     let existing_ids = assistant.tool_resources.code_interpreter.file_ids;
-     
-     
-     await client.beta.assistants.update(assistant.id, {
-      tool_resources: {
-        code_interpreter: {
-          file_ids : [...existing_ids,uploadedFile.id]
-        }
-      },
-     });
+    //  let existing_ids = assistant.tool_resources.code_interpreter.file_ids;
+    let existing_ids = assistant.file_ids;
+     console.log(JSON.stringify(assistant));
+    //  await client.beta.assistants.update(assistant.id, {
+    //   tool_resources: {
+    //     code_interpreter: {
+    //       file_ids : [...existing_ids,uploadedFile.id]
+    //     }
+    //   },
+    //  });
+    await client.beta.assistants.update(assistant.id, {
+      file_ids : [...existing_ids,uploadedFile.id]
+    })
      
     return {  
       id: nanoid(),
