@@ -56,7 +56,7 @@ export function PromptForm({
         if (window.innerWidth < 600) {
           e.target['message']?.blur()
         }
-        setTimeout(fetchThreadData, 5000);
+        
         const value = input.trim()
         setInput('')
         if (!value && !file) return
