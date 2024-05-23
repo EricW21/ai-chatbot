@@ -89,7 +89,7 @@ export function PromptForm({
 
         // Submit and get response message
         let threadId = localStorage.getItem('threadId');
-        const responseMessage = await submitUserMessage(value,threadId)
+        const responseMessage = await submitUserMessage(value)
         setMessages(currentMessages => [...currentMessages, responseMessage])
       }}}
     >
