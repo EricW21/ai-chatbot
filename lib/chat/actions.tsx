@@ -52,7 +52,7 @@ let thread: any;
       name: "Stock Trading Bot",
       instructions: "You are a stock trading bot. Help answer questions about stock trading.",
       tools: [{ type: "code_interpreter" }],
-      model: "gpt-4o", // Ensure the correct model name
+      model: "gpt-3.5-turbo", 
     });
     thread = await client.beta.threads.create();
     
@@ -168,8 +168,10 @@ async function submitUserMessage(content: string, threadId:string) {
   'use server'
   
   if (typeof(threadId)==='undefined' || threadId===null) {
-    
+    console.log(JSON.stringify(thread));
+
     threadId=thread.id;
+    
     await kv.hset(`thread:${threadId}`, { type: 'thread', id: threadId });
   }
   
