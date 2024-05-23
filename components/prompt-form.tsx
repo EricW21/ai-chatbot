@@ -20,15 +20,21 @@ import { useRouter } from 'next/navigation'
 
 export function PromptForm({
   input,
-  setInput
+  setInput,
+  file,
+  setFile
 }: {
   input: string
+  
   setInput: (value: string) => void
+  file: File | undefined;
+  setFile: (file: File | undefined) => void;
 }) {
   const router = useRouter()
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
-  const { submitUserMessage } = useActions()
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const { submitUserMessage, handleFile } = useActions()
   const [_, setMessages] = useUIState<typeof AI>()
 
   React.useEffect(() => {
@@ -36,6 +42,9 @@ export function PromptForm({
       inputRef.current.focus()
     }
   }, [])
+
+  
+ 
 
   return (
     <form
@@ -47,11 +56,28 @@ export function PromptForm({
         if (window.innerWidth < 600) {
           e.target['message']?.blur()
         }
-
+        setTimeout(fetchThreadData, 5000);
         const value = input.trim()
         setInput('')
-        if (!value) return
-
+        if (!value && !file) return
+        if (file) {
+          setFile(undefined);
+          if (fileInputRef) {
+            fileInputRef.current.value = '';
+          }
+          setMessages(currentMessages => [
+            ...currentMessages,
+            {
+              id: nanoid(),
+              display: <UserMessage>Uploaded File</UserMessage>
+            }
+          ])
+          const formData = new FormData();
+          formData.append('file', file);
+          const responseMessage = await handleFile(formData);
+          setMessages(currentMessages => [...currentMessages, responseMessage])
+        }
+        else {
         // Optimistically add user message UI
         setMessages(currentMessages => [
           ...currentMessages,
@@ -62,9 +88,10 @@ export function PromptForm({
         ])
 
         // Submit and get response message
-        const responseMessage = await submitUserMessage(value)
+        let threadId = localStorage.getItem('threadId');
+        const responseMessage = await submitUserMessage(value,threadId)
         setMessages(currentMessages => [...currentMessages, responseMessage])
-      }}
+      }}}
     >
       <div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-12">
         <Tooltip>
@@ -83,8 +110,15 @@ export function PromptForm({
           </TooltipTrigger>
           <TooltipContent>New Chat</TooltipContent>
         </Tooltip>
+
+        
+        <input type="file" id="fileInput" ref={fileInputRef} onChange={(e) => setFile(e.target.files?.[0])}/>
+          
+        
+
         <Textarea
           ref={inputRef}
+          
           tabIndex={0}
           onKeyDown={onKeyDown}
           placeholder="Send a message."
@@ -101,7 +135,7 @@ export function PromptForm({
         <div className="absolute right-0 top-[13px] sm:right-4">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button type="submit" size="icon" disabled={input === ''}>
+              <Button type="submit" size="icon" disabled={input === '' && !file}>
                 <IconArrowElbow />
                 <span className="sr-only">Send message</span>
               </Button>

@@ -23,6 +23,7 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
   const router = useRouter()
   const path = usePathname()
   const [input, setInput] = useState('')
+  const [file, setFile] = useState<File | undefined>()
   const [messages] = useUIState()
   const [aiState] = useAIState()
 
@@ -49,7 +50,7 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
 
   useEffect(() => {
     missingKeys.map(key => {
-      toast.error(`Missing ${key} environment variable!`)
+      // toast.error(`Missing ${key} environment variable!`)
     })
   }, [missingKeys])
 
@@ -78,6 +79,8 @@ export function Chat({ id, className, session, missingKeys }: ChatProps) {
         setInput={setInput}
         isAtBottom={isAtBottom}
         scrollToBottom={scrollToBottom}
+        file={file}
+        setFile={setFile}
       />
     </div>
   )

@@ -1,5 +1,5 @@
 import { SidebarDesktop } from '@/components/sidebar-desktop'
-
+import ThreadSidebar from '@/components/thread-sidebar'
 interface ChatLayoutProps {
   children: React.ReactNode
 }
