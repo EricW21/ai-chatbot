@@ -14,4 +14,7 @@ module.exports = {
     
     ignoreBuildErrors: true,
   },
+  env: {
+    OPEN_API_KEY: process.env.OPEN_API_KEY,
+  },
 }

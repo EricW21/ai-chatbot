@@ -38,7 +38,12 @@ import { Chat, Message } from '@/lib/types'
 import { auth } from '@/auth'
 import { OpenAI } from 'openai';
 
-const client = new OpenAI({apiKey: process.env.OPEN_API_KEY});
+const client = new OpenAI({
+  apiKey: process.env.OPEN_API_KEY,
+  defaultHeaders: {
+    "OpenAI-Beta": "assistants=v2"
+  }
+});
 let assistant: any;
 let thread: any;
 (async () => {
