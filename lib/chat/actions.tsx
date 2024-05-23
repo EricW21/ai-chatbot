@@ -39,8 +39,8 @@ import { auth } from '@/auth'
 import { OpenAI } from 'openai';
 
 const client = new OpenAI({apiKey: process.env.OPEN_API_KEY});
-let assistant;
-let thread;
+let assistant: any;
+let thread: any;
 (async () => {
   try {
     assistant = await client.beta.assistants.create({

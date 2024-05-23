@@ -62,7 +62,7 @@ export function PromptForm({
         if (!value && !file) return
         if (file) {
           setFile(undefined);
-          if (fileInputRef) {
+          if (fileInputRef.current) {
             fileInputRef.current.value = '';
           }
           setMessages(currentMessages => [
